@@ -1,3 +1,3 @@
 # datasciencecoursera
 
-This is my Coursera Data Science repo
+This is Matt Dancho's Coursera Data Science repo
