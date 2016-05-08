@@ -1,12 +1,12 @@
-# Script Logic
+# Variables and Script Logic
 -----
 The script `run_analysis.R` performs the 5 steps described in the course project's definition. The logic is as follows:
 
 * First, labels are read and formatted for the activity (variable trying to predict). These are used later with the Y outcome field, which maps the activity number with the label.
 * Second, features are extracted and formatted. A subset of only the labels containing "mean()"" and "std()" were computed. These relate to the columns of interest in the `x_train` and `x_test` data sets.
 * Third and forth, the training data and test data was read, formatted and combined. The subset of features including only the mean() and std() was used to subset `x_train` and `x_test`.
-* Fifth, the training and test datasets were merged.
-* Last, a tidy dataset was computed, which includes the average of each feature summarized by activity and subject. The tidy data is exported to the file `average_by_activity_subject.txt`.
+* Fifth, the training and test datasets were merged into the data frame `all_data`.
+* Last, `tidy_data` was computed, which includes the average of each feature summarized by activity and subject. The tidy data is exported to the file `average_by_activity_subject.txt`.
 
 # Code Used
 -----
