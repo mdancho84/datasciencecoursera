@@ -115,4 +115,4 @@ tidy_data <- all_data %>%
         summarize_each(funs(mean)) %>%
         arrange(activity, subject.id)
 
-write_csv(tidy_data, "average_by_activity_subject.txt")
+write.table(tidy_data, "average_by_activity_subject.txt", row.names = FALSE)
