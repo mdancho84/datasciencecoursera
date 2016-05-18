@@ -73,7 +73,7 @@ For each plot you should
 
 1. From `plot1.png`, total emissions of PM2.5 has __decreased__ in the United States from 1999 to 2008.
 2. From `plot2.png`, total emission of PM2.5 has __decreased__ in Baltimore City, Maryland (`fips == "24510"`) from 1999 to 2008.
-3. From `plot3.png`, the following sources (`type`) have seen decreases in PM2.5 emissions:
+3. From `plot3.png`, the following sources (`type`) have seen __decreases__ in PM2.5 emissions:
 
 	* NON-ROAD
 	* NONPOINT
