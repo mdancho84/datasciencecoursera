@@ -202,7 +202,8 @@ The following `R` Code adds an additional column `weekday` with either "weekday"
 ```r
 # Add weekday column
 imputedData <- imputedData %>%
-        mutate(weekday = ifelse(day.of.week == 1 | day.of.week == 7, "weekend","weekday"))
+        mutate(weekday = ifelse(day.of.week == 1 | day.of.week == 7, 
+                                "weekend","weekday"))
 
 imputedData$weekday <- as.factor(imputedData$weekday)
 ```
@@ -211,11 +212,14 @@ Panel plot of the time series of average number of steps on weekdays and weekend
 
 
 ```r
+# Calculate average steps by interval and weekday/weekend
 weekdayVsWeekend.data <- imputedData %>%
         group_by(interval, weekday) %>%
         summarize(avg.steps = mean(steps))
 
-weekdayVsWeekend.g <- ggplot(data=weekdayVsWeekend.data, aes(x=interval, y=avg.steps))
+# Plot data
+weekdayVsWeekend.g <- ggplot(data=weekdayVsWeekend.data, 
+                             aes(x=interval, y=avg.steps))
 weekdayVsWeekend.g +
         geom_line() + 
         facet_grid(weekday~.)+

@@ -239,15 +239,19 @@ median(totalStepsPerDay.imputed.data$total.steps)</code></pre>
 <p>The following <code>R</code> Code adds an additional column <code>weekday</code> with either “weekday” or “weekend” depending on if the date is Monday through Friday or saturday/Sunday.</p>
 <pre class="r"><code># Add weekday column
 imputedData &lt;- imputedData %&gt;%
-        mutate(weekday = ifelse(day.of.week == 1 | day.of.week == 7, &quot;weekend&quot;,&quot;weekday&quot;))
+        mutate(weekday = ifelse(day.of.week == 1 | day.of.week == 7, 
+                                &quot;weekend&quot;,&quot;weekday&quot;))
 
 imputedData$weekday &lt;- as.factor(imputedData$weekday)</code></pre>
 <p>Panel plot of the time series of average number of steps on weekdays and weekends:</p>
-<pre class="r"><code>weekdayVsWeekend.data &lt;- imputedData %&gt;%
+<pre class="r"><code># Calculate average steps by interval and weekday/weekend
+weekdayVsWeekend.data &lt;- imputedData %&gt;%
         group_by(interval, weekday) %&gt;%
         summarize(avg.steps = mean(steps))
 
-weekdayVsWeekend.g &lt;- ggplot(data=weekdayVsWeekend.data, aes(x=interval, y=avg.steps))
+# Plot data
+weekdayVsWeekend.g &lt;- ggplot(data=weekdayVsWeekend.data, 
+                             aes(x=interval, y=avg.steps))
 weekdayVsWeekend.g +
         geom_line() + 
         facet_grid(weekday~.)+
