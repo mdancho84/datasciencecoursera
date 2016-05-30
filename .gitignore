@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+*.bz2
+*.Rproj
