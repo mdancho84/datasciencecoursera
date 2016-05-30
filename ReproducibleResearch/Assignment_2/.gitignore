@@ -1,1 +1,4 @@
 *.bz2
+rsconnect/
+StormDatabaseAnalysis_files/
+StormDatabaseAnalysis_cache/

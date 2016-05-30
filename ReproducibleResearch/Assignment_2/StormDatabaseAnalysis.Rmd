@@ -7,24 +7,154 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
-## R Markdown
+# Synopsis
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This report reviews the effects of severe weather events on both the population and the economy. This is an investigative report in that we are seeking to determine which event types have historically caused the most fatalities (a measure of population impact) and property damage (a measure of economic cost). Data was obtained from the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. The events start in the year 1950 and end in November 2011. The conclusion is that tornados cause the most harm to the population in terms of fatalities and floods cause the most economic cost.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Data Processing
 
-```{r cars}
-summary(cars)
+The first step is to load the packages that will be used for data manipulation/wrangling and plotting. 
+
+``` {r listPackages, message=FALSE}
+
+# Data wrangling
+library(dplyr)
+library(tidyr)
+
+# Plotting
+library(ggplot2)
+
+# Tables
+library(pander)
+
 ```
 
-## Including Plots
+Next, the data is loaded using the `read.table` function.
 
-You can also embed plots, for example:
+``` {r readRawData, cache=TRUE}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+stormDataRaw <- read.table("repdata-data-StormData.csv.bz2", header = TRUE, sep = ",")
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We call the `head` function to make a quick check of the dataset.
+
+``` {r checkDataset}
+
+head(stormDataRaw)
+
+```
+
+The data was loaded correctly, but we have many columns that are not necessary for the purpose of this analysis. Let's select only the columns needed for the analysis, which relate to the event type, population damage (fatalities) and economic damage (property damage). I use `pander` for better table formatting.
+
+``` {r selectNeededColumns}
+
+stormDataSelections <- stormDataRaw %>%
+        select(EVTYPE, FATALITIES, PROPDMG, PROPDMGEXP)
+
+pander(head(stormDataSelections), caption="Storm Dataset: Pre-Processing, First Six Rows")
+
+```
+
+Upon inspection, further data processing is necessary because the property damage values are stored in various units depeding on the respective "exp" code, where:
+
+* K = Thousands
+* M = Millions
+* B = Billions
+
+Specifically, the issue with `PROPDMG` is that the value can be in measured in thousands, millions, or billions depending on the code K, M, or B in `PROPDMGEXP`. To account for this, `PROPDMG.MULT` is added as a multiplier depending on the `PROPDMGEXP` code. The total value is the product of the `PROPDMG` and `PROPDMG.MULT`, which is stored as `PROPDMG.TOTAL`. 
+
+``` {r processDataset}
+
+stormData <- stormDataSelections %>%
+        mutate(PROPDMG.MULT = ifelse(PROPDMGEXP == "K", 1000,
+                                      ifelse(PROPDMGEXP == "M", 1000000,
+               ifelse(PROPDMGEXP == "B", 1000000000, 0)))) %>%
+        mutate(PROPDMG.TOTAL = PROPDMG * PROPDMG.MULT) %>%
+        select(EVTYPE, FATALITIES, PROPDMG.TOTAL)
+
+pander(head(stormData), caption="Storm Dataset: Post-Processing, First Six Rows")
+
+```
+
+Finally, we can look at a summary of the final dataset to get a sense of what the dataset looks like.
+
+``` {r summarizeDataset}
+summary(stormData)
+```
+
+# Results
+
+## Which types of events are most harmful to population health?
+
+Fatalities are the most serious impact to population health, and as such this was the measure selected for analysis of which events are most harmful to the population. The dataset was summarized on fatalities by event type, which resulted in 985 events. However, the bulk of the fatalties are accumulated from a small fraction of the 985 events. The top 10 were examined, which comprises 80% of the fatalities. We can see from the plot below that __Tornados resulted in 5633 fatalities__ over the time period analyzed, which is significantly more than any other event. Therefore, __Tornados are the most harmful to population health__.
+
+``` {r plotFatalities, fig.width=10, fig.cap="Top 10 Weather Events Causing Fatalities"}
+
+# Organize data
+fatalities <- stormData %>%
+        group_by(EVTYPE) %>%
+        summarize(FATALITIES.TOTAL = sum(FATALITIES)) %>%
+        arrange(desc(FATALITIES.TOTAL)) 
+
+fatalities.top10 <- fatalities[1:10, ]
+
+# Need to order by value otherwise the graph will be alphabetically ordered
+fatalities.top10.ordered <- fatalities.top10
+fatalities.top10.ordered$EVTYPE <- factor(fatalities.top10.ordered$EVTYPE, 
+                                          levels = arrange(fatalities.top10.ordered, FATALITIES.TOTAL)$EVTYPE)
+
+# Plot
+ggplot(data=fatalities.top10.ordered, aes(x=EVTYPE, y=FATALITIES.TOTAL)) +
+        geom_bar(stat="identity") +
+        geom_text(aes(ymax=FATALITIES.TOTAL, label=FATALITIES.TOTAL), 
+                        hjust= -0.25,
+                        vjust= 0.5,
+                        color="black",
+                        size=4) +
+        coord_flip() +
+        labs(title="Top 10 Weather Events Causing Fatalities", 
+             x="Weather Event Type", 
+             y="Total Fatalities")+
+        scale_y_continuous(limits = c(0,6500))
+
+```
+
+
+## Which types of events have the greatest economic consequences?
+
+Property damage is the best measurement of economic consequences. Similar to fatalities, the data can be summarized by event type. Following the same process, the top 10 events causing property damage are shown in the graph below, as these events comprise 88% of the total property damage. As shown below, the majority of property damage is caused by __floods__ at __$145T__ over the time period analyzed. The next closest is Hurricanes/Typhoons at less than half the property damage. Therefore, __floods are the most damaging weather event when measured by economic cost__.
+
+``` {r plotPropertyDamage, fig.width=10, fig.cap="Top 10 Weather Events Causing Property Damage"}
+
+# Organize data
+propertyDamage <- stormData %>%
+        group_by(EVTYPE) %>%
+        summarize(PROPDMG.TOTAL = sum(PROPDMG.TOTAL)) %>%
+        arrange(desc(PROPDMG.TOTAL)) 
+
+propertyDamage.top10 <- propertyDamage[1:10, ]
+
+# Need to order by value otherwise the graph will be alphabetically ordered
+propertyDamage.top10.ordered <- propertyDamage.top10
+propertyDamage.top10.ordered$EVTYPE <- factor(propertyDamage.top10.ordered$EVTYPE, 
+                                              levels = arrange(propertyDamage.top10.ordered, PROPDMG.TOTAL)$EVTYPE)
+
+# Plot
+ggplot(data=propertyDamage.top10.ordered, aes(x=EVTYPE, y=PROPDMG.TOTAL)) +
+        geom_bar(stat="identity") +
+        geom_text(aes(ymax=PROPDMG.TOTAL, label=scales::dollar(PROPDMG.TOTAL)), 
+                        hjust= -0.25,
+                        vjust= 0.5,
+                        color="black",
+                        size=4) +
+        coord_flip() +
+        labs(title="Top 10 Weather Events Causing Property Damage", 
+             x="Weather Event", 
+             y="Total Property Damage Value")+
+        scale_y_continuous(labels = scales::dollar, limits = c(0,250000000000))
+
+```
