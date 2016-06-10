@@ -1,0 +1,149 @@
+---
+title: "Investigation of Exponential Distribution"
+author: "Matt Dancho"
+date: "June 8, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+This report investigates sampling of the exponential distribution and compares the samples to the Central Limit Theorem. The investigation uses the distribution of averages of 40 exponentials simulated 1000 times. Specifically, the report investigates the following:
+
+1. The sample mean of the distribution as it compares to the theoretical mean of the exponential distribution.
+
+2. The sample variance of the distribution as it compares to the theoretical variance for the exponential distribution.
+
+3. Whether or not the distribution is approximately normal as per the Central Limit Theorem.
+
+# Simulations
+
+First, the necessary libraries are loaded.  
+
+``` {r libraries}
+
+# Load libraries
+library(ggplot2)
+library(scales)
+```
+
+Next, a simulation of 1000 sets of 40 random exponentials is computed. Averages of each set of 40 exponentials are taken, and plotted to show the distribution of the means when n=40.   
+
+```{r simulation}
+
+# Set initial values
+lambda <- 0.2   # Rate for exponential distribution
+n <- 40         # Number of exponentials averaged per simulation
+B <- 1000       # Number of simulations, should be large
+
+# Set seed for reproducibility
+set.seed(5050)
+
+# Simulate Exponential Distribution Means
+expSamples <- rexp(n * B, lambda)
+expMatrix <- matrix(expSamples, nrow = B, ncol = n)
+expMeans <- rowMeans(expMatrix)
+expMeans_df <- data.frame(means=expMeans)
+```
+
+\newpage
+
+__Figure 1__ shows a histogram of the simulated averages of the exponential distribution.
+
+```{r expDist_plot, message=FALSE, warning=FALSE, fig.height = 3, fig.cap="Exponential Distribution Simulation: 1000 Averages of 40 Samples"}
+# Plot the sampled distribution
+ggplot(data=expMeans_df, aes(x=means)) + 
+        geom_histogram(bins = 25, color = "black") + 
+        geom_rug(alpha=.2) +
+        scale_x_continuous(limits=c(1,10), breaks = 1:10) +
+        ggtitle("Exponential Distribution Simulation: 1000 Averages of 40 Samples") +
+        ylab("Frequency") +
+        xlab("Mean")
+```
+
+# Sample Mean versus Theoretical Mean
+
+The first part of the investigation compares the sample (experimental) mean to the theoretical mean for the exponential distribution. The expected mean, $\mu$, is given by __equation (1)__:
+
+\begin{equation}
+\mu = \frac{1}{\lambda}
+\end{equation}
+
+The following code solves for the theoretical mean in R.  
+
+```{r theoreticalMean}
+theoreticalMean <- 1/lambda
+theoreticalMean
+```
+
+Next, the median of the 1000 samples is computed to yield the experimental mean of the distribution of `n = 40` random exponentials.  
+
+``` {r experimentalMean}
+experimentalMean <- median(expMeans_df$means)
+experimentalMean
+```
+
+As shown, the two means are very close with the absolute difference being `r round(abs(experimentalMean - theoreticalMean), 3)` or `r percent(abs(experimentalMean - theoreticalMean) / theoreticalMean)` difference.
+
+# Sample Variance versus Theoretical Variance
+
+The second part of the investigation compares the sample (experimental) variance to the theoretical variance for the exponential distribution. The expected variance, $\sigma^{2}$, of `n` measurements is given by __equation (2)__:
+
+\begin{equation}
+\sigma^{2} = \frac{\frac{1}{\lambda^{2}}}{n}
+\end{equation}
+
+The following code solves for the theoretical variance in R.  
+
+```{r theoreticalVar}
+theoreticalVar <- (1/lambda^2) / n
+theoreticalVar
+```
+
+Next, the variance of the 1000 samples is computed to yield the experimental variance of the distribution of `n = 40` random exponentials.  
+
+``` {r experimentalVar}
+experimentalVar <- var(expMeans_df$means)
+experimentalVar
+```
+
+As shown, the experimental and theoretical variances are very close with the absolute difference being `r round(abs(experimentalVar - theoreticalVar), 3)` or `r percent(abs(experimentalVar - theoreticalVar) / theoreticalVar)` difference.
+
+# Is Distribution Normal per Central Limit Theorem?
+
+The third and final part of the investigation evaluates the exponential distribution samples to determine if the distribution is approximately normal as per the Central Limit Theorem.  
+
+```{r CLT_plot, message=FALSE, warning=FALSE, fig.height = 3.5, fig.cap="Exponential Distribution Simulation Compared to Normal Distribution"}
+
+# Create normal dist with same mean and variance as exp dist
+x <- seq(1, 10, length.out = 100)
+y <- dnorm(x, mean=theoreticalMean, sd=sqrt(theoreticalVar))
+norm_df <- data.frame(x, y)
+
+# Plot the sampled exponential distribution and normal distribution
+ggplot() + 
+        geom_histogram(data=expMeans_df, aes(x=means, y=..density..), 
+                       bins = 25, fill="royalblue", alpha=.3) + 
+        geom_density(data=expMeans_df, aes(x=means), color="royalblue", size=1) +
+        geom_rug(data=expMeans_df, aes(x=means), alpha=.2, color="royalblue") +
+        geom_vline(data=expMeans_df, aes(xintercept = median(means), 
+                                         color="Sampled Exponential"),  size=1) +
+        geom_line(data=norm_df, aes(x=x, y=y), color="navy", size = 1) +
+        geom_vline(aes(xintercept = theoreticalMean, color="Theoretical Normal"), 
+                   size = 1) +
+        scale_color_manual(name="Distribution", 
+                           labels=c("Sampled Exponential", "Theoretical Normal"), 
+                           values=c("royalblue","navy")) +
+        scale_x_continuous(limits=c(1,10), breaks = 1:10) +
+        ggtitle("Exponential Distribution Simulation Compared to Normal Distribution") +
+        theme(plot.title = element_text(size = rel(1))) +
+        ylab("Density") +
+        xlab("Mean")
+```
+
+\newpage 
+
+As shown in __Figure 2__, the sampled exponential distribution mimics the normal distribution very closely. With 1000 averages of 40 exponentials, we conclude the distribution is approximately normal as per the Central Limit Theorem. 

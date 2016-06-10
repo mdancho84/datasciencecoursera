@@ -1,0 +1,147 @@
+---
+title: "Exploration of Tooth Growth Data"
+author: "Matt Dancho"
+date: "June 9, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+This report analyzes the effect of Vitamin C on tooth growth in guinea pigs. The data used comes from the `ToothGrowth` data set in the `R datasets` package. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice (OJ) or ascorbic acid, a form of vitamin C (VC). The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. The analysis contains an exploratory evaluation and a statistical analysis of the effect of supplement and dose level on tooth growth.
+
+# Setup
+
+First, the needed libraries and data are loaded.  
+
+``` {r libraries}
+
+# Load libraries
+library(ggplot2)        # Used for plotting
+library(pander)         # Used for table formatting
+
+# Load data
+data("ToothGrowth")
+tg <- ToothGrowth
+```
+
+# Exploratory Analysis
+
+Next, an exploratory analysis is performed. The `ToothGrowth` data set contains three features: 
+
+1. __len:__ Tooth length
+2. __supp:__ Supplement type (VC or OJ).
+3. __dose:__ Dose in milligrams/day
+
+A summary of the data is shown in __Table 1__.
+
+``` {r summary}
+pander(summary(tg))
+```
+
+Table: Summary of Data
+
+\newpage
+
+As shown in __Table 2__, a total of ten doses were given by each dosage level and supplement type.
+
+``` {r table}
+pander(table(tg$dose, tg$supp))
+```
+
+Table: Number of Doses Given by Dose Level and Supplement Type
+
+__Figure 1__ shows a box plot of dosage versus length by supplement type. Dose levels appear to have a positive relationship with tooth length. The relationship between supplement type and tooth length is more difficult to determine.  
+
+``` {r exploratoryPlot, fig.height = 3, fig.cap = "Dosage versus Tooth Length by Supplement Type"}
+
+ggplot(data=tg, aes(x=factor(dose), y=len)) +
+        geom_boxplot(aes(fill=supp)) + 
+        facet_grid(.~supp) +
+        ylab("Length") +
+        xlab("Dosage") +
+        ggtitle("Dosage versus Tooth Length by Supplement Type")
+```
+
+# Statistical Analysis of Tooth Growth by Supplement and Dose
+
+From the exploratory analysis, there are possibly relationships between:
+
+1. Tooth length and supplement type
+2. Tooth length and dosage
+
+Two-sample t-tests are performed to determine if the relationships are statistically significant. 
+
+## Assumptions
+
+The underlying assumptions are:
+
+1. The samples were selected at random 
+2. The samples are representative of the entire population
+3. The distribution of the means is normal
+4. The populations have unequal variance (conservative assumption)
+5. 95% confidence is needed to reject the hypothesis
+
+## Alternative Hypothesis 1: Supplement type has an effect on tooth length 
+
+A t-test is performed on data subset by supplement type with an alternative hypothesis that the supplement type has an effect on tooth length. The t-test is set to compare supplement type VC to OJ. The result is negative indicating VC typically results in a lower tooth length than OC. However, from the t-test results, we can see that the 95% confidence interval contains zero indicating that we should not reject the null hypothesis at a 95% confidence interval. Therefore, we cannot conclude that supplement type has an effect on tooth length.
+
+``` {r Ttest_suppType}
+supp_vc <- subset(tg, supp=="VC")
+supp_oj <- subset(tg, supp=="OJ")
+t.test(supp_vc$len, supp_oj$len, var.equal = FALSE)
+```
+
+## Alternative Hypothesis 2: Dose level has an effect on tooth length
+
+The alternative hypothesis that the dose level has an effect on tooth length. The t-test is set to compare supplement each dose level. Three dosage levels are present, which results in a total of three t-tests to compare each dosage:
+
+1. Dose level 0.5 to 1.0
+2. Dose level 0.5 to 2.0
+3. Dose level 1.0 to 2.0
+
+The data is subset to perform the t-tests.
+
+``` {r dose_subset}
+# Subset data by dose level
+dose_0.5 <- subset(tg, dose==0.5)
+dose_1.0 <- subset(tg, dose==1.0)
+dose_2.0 <- subset(tg, dose==2.0)
+```
+
+### Compare Dose Level 0.5 to 1.0
+
+The first t-test concludes the 95% confidence interval is greater than zero indicating the null hypothesis that dose level has no effect can be rejected. Therefore, a dose level of 1.0 has a positive effect on tooth length versus a dose level of 0.5.
+
+``` {r doseCompare_0.5_1.0}
+# Compare dose level 0.5 to 1.0
+t.test(dose_1.0$len, dose_0.5$len, var.equal = FALSE)
+```
+
+### Compare Dose Level 0.5 to 2.0
+
+The second t-test concludes the 95% confidence interval is greater than zero indicating the null hypothesis that dose level has no effect can be rejected. Therefore, a dose level of 2.0 has a positive effect on tooth length versus a dose level of 0.5.
+
+``` {r doseCompare_0.5_2.0}
+# Compare dose level 0.5 to 2.0
+t.test(dose_2.0$len, dose_0.5$len, var.equal = FALSE)
+```
+
+\newpage
+
+### Compare Dose Level 1.0 to 2.0
+
+The third t-test concludes the 95% confidence interval is greater than zero indicating the null hypothesis that dose level has no effect can be rejected. Therefore, a dose level of 2.0 has a positive effect on tooth length versus a dose level of 1.0.
+
+``` {r doseCompare_1.0_2.0}
+# Compare dose level 1.0 to 2.0
+t.test(dose_2.0$len, dose_1.0$len, var.equal = FALSE)
+```
+
+# Conclusions
+
+1. Supplement type was not proven with 95% confidence to have an effect on tooth length. 
+2. Dose level was proven with 95% confidence to have an effect on tooth length. All three comparisons of dose level concluded that tooth length increased with increasing dose level.
