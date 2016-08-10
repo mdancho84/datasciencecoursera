@@ -4,3 +4,5 @@
 .Ruserdata
 *.bz2
 *.Rproj
+PredictionAssignment_cache
+rsconnect
