@@ -1,0 +1,239 @@
+---
+title: "Practical Machine Learning: Prediction Assignment"
+author: "Matt Dancho"
+date: "August 9, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+# Executive Summary
+
+Using devices such as _Jawbone Up_, _Nike FuelBand_, and _Fitbit_ it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. 
+
+The goal of this project is to use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants to predict the manner in which they did the exercise. The `classe` variable in the training set is the target. The report describes how the model was built, how cross validation was used, the expected out of sample error, and why the data processing and modeling choices were made. The prediction model will be used to predict 20 different test cases.
+
+# Background
+
+The training and test data analyzed in this report are available here:
+
+ *  [Training data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv): used to train the model and test for accuracy.
+ *  [Test data](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv): used to make the final predictions for the quiz.
+
+
+# Data Processing
+
+This section will go through the required steps to get the raw data loaded, processed, and ready to be modeled. 
+
+### Loading Packages and Data
+
+First, the required packages/libraries are loaded.
+
+``` {r}
+# Load libraries ---------------------------------------------------------------
+library(caret)
+library(dplyr)
+```
+
+Second, the raw training and testing data sets are loaded.
+
+``` {r}
+# Load data --------------------------------------------------------------------
+training <- read.csv("./data/pml-training.csv")
+testing <- read.csv("./data/pml-testing.csv")
+```
+
+### Exploring & Cleaning Data
+
+The training data set has a large number of columns, many of which are either (1) not predictors or (2) have NAs or blank values. We need to clean the training and testing data sets to remove non-predictors / targets and any columns with empty values (e.g. NA or blank values).
+
+``` {r}
+# Initial data frame sizes and structure ---------------------------------------
+dim(training)
+str(training[ ,1:20]) # Structure of first 20 columns shown
+```
+
+First, the non-predictor / target columns (columns 1 through 7) are removed.
+
+``` {r}
+# Remove non-predictors and non-target columns ---------------------------------
+training <- training[,-(1:7)]
+testing <- testing[,-(1:7)]
+```
+
+Second, the columns with NAs and blanks are removed.
+
+```{r}
+# Remove columns with NA or blank values ---------------------------------------
+training <- training[ , !apply(training, 2, function(x) any(is.na(x)))]
+training <- training[ , !apply(training, 2, function(x) any(x==""))]
+testing <- testing[ , !apply(testing, 2, function(x) any(is.na(x)))]
+testing <- testing[ , !apply(testing, 2, function(x) any(x==""))]
+```
+
+The final training set dimensions are as follows. As we can see, it cut down the columns substantially, leaving a well formed data frame for modeling. 
+
+``` {r}
+# Final dimensions and structure of training set -------------------------------
+dim(training)
+str(training[,1:20]) # Structure of first 20 columns shown
+```
+
+### Pre-Processing Data
+
+Once the data is cleaned, the first step is to partition the training set into a training and a test set. The `set.seed()` function is used for reproducibility. A random sample is taken using split of 60/40 for training/testing data sets using the `createDataPartition()` function. The `train.set` data will be used for training the models. The `test.set` data will be used to determine accuracy of the test set. 
+
+``` {r}
+# Partition data into training, testing, and CV sets ---------------------------
+set.seed(100)
+inTrain <- createDataPartition(y=training$classe, p=0.6, list=FALSE)
+train.set <- training[inTrain, ] # 60% of training set
+test.set <- training[-inTrain, ] # 40% of training set
+```
+
+No additional pre-processing is performed. PCA was not used because this would reduce the interpretability of the model. Feature reduction using variable importance was not used since this increases the bias of the model. 
+
+
+
+# Modeling
+
+Three models were created using the `train.set`: random forest, linear discriminant analysis, and gradient boosting machine (boosting). Cross validation was performed on all models using k = 5 folds. For computational considerations with random forest, rather than limiting the number of factors, limiting the number of trees provided a computationally efficient method to develop the model. The number of trees was limited to 300.  
+
+``` {r cache=TRUE}
+# Modeling ---------------------------------------------------------------------
+folds <- 5
+ntree <- 300
+set.seed(222)
+fitControl <- trainControl(method="cv", number = folds)
+
+# Random Forest
+model.rf <- train(classe ~ ., 
+                  data=train.set, 
+                  method="rf", 
+                  trControl=fitControl, 
+                  ntree=ntree)
+
+# LDA
+model.lda <- train(classe ~ ., 
+                   data=train.set, 
+                   method="lda", 
+                   trControl=fitControl)
+
+# GBM (Boosting)
+model.gbm <- train(classe ~ ., 
+                  data=train.set, 
+                  method="gbm", 
+                  trControl=fitControl,
+                  verbose=FALSE)
+```
+
+
+
+# Assessing Model Performance
+
+In this section, we assess the performance of each model on the `test.set`. The model with the lowest out-of-sample error rate (1 - Testing Accuracy Rate) is considered to have the best performance. 
+
+### Random Forest
+
+The following code predicts the `classe` classification on the `test.set` for the Random Forest model.
+
+``` {r}
+# Prediction on test set -------------------------------------------------------
+pred.rf <-  predict(model.rf, newdata=test.set)
+```
+
+The `confusionMatrix()` function shows the accuracy of the model on the test data set.
+
+``` {r}
+# Confusion Matrix to show accuracy --------------------------------------------
+confusionMatrix(pred.rf, test.set$classe)
+```
+
+Out of sample error for RF is `r round(1-confusionMatrix(pred.rf, test.set$classe)$overall[[1]], 4)`.
+
+``` {r}
+# Out of sample error ----------------------------------------------------------
+round(1-confusionMatrix(pred.rf, test.set$classe)$overall[[1]], 4)
+```
+
+
+
+### Linear Discriminant Analysis
+
+The following code predicts the `classe` classification on the `test.set` for the LDA model.
+
+``` {r}
+# Prediction on test set -------------------------------------------------------
+pred.lda <-  predict(model.lda, newdata=test.set)
+```
+
+The `confusionMatrix()` function shows the accuracy of the model on the test data set.
+
+``` {r}
+# Confusion Matrix to show accuracy --------------------------------------------
+confusionMatrix(pred.lda, test.set$classe)
+```
+
+Out of sample error for LDA is `r round(1-confusionMatrix(pred.lda, test.set$classe)$overall[[1]], 4)`.
+
+``` {r}
+# Out of sample error ----------------------------------------------------------
+round(1-confusionMatrix(pred.lda, test.set$classe)$overall[[1]], 4)
+```
+
+
+### Gradient Boosting Machine (Boosting)
+
+
+The following code predicts the `classe` classification on the `test.set` for the GBM model.
+
+``` {r}
+# Prediction on test set -------------------------------------------------------
+pred.gbm <-  predict(model.gbm, newdata=test.set)
+```
+
+The `confusionMatrix()` function shows the accuracy of the model on the test data set.
+
+``` {r}
+# Confusion Matrix to show accuracy --------------------------------------------
+confusionMatrix(pred.gbm, test.set$classe)
+```
+
+Out of sample error for GBM is `r round(1-confusionMatrix(pred.gbm, test.set$classe)$overall[[1]], 4)`.
+
+``` {r}
+# Out of sample error ----------------------------------------------------------
+round(1-confusionMatrix(pred.gbm, test.set$classe)$overall[[1]], 4)
+```
+
+
+# Conclusions
+
+The Random Forest model produced the most accurate model, followed closely by the GBM model and more distantly by the LDA model. The out of sample error rates were as follows:
+
+* Random Forest: `r round(1-confusionMatrix(pred.rf, test.set$classe)$overall[[1]], 4)`
+* LDA: `r round(1-confusionMatrix(pred.lda, test.set$classe)$overall[[1]], 4)`
+* GBM: `r round(1-confusionMatrix(pred.gbm, test.set$classe)$overall[[1]], 4)`
+
+The Random Forest model will be used to predict the testing set.
+
+# Application to Testing Set
+
+The testing set is predicted below. 
+
+``` {r}
+pred.testing <- predict(model.rf, newdata=testing)
+data.frame(Observation = 1:20 , Prediction = pred.testing)
+```
+
+
+
+
+
+
+
+
