@@ -25,7 +25,7 @@ There's a lot you can do with the __Sales Analytics Dashboard__. Here's a few su
 
 ## Enjoy & Leave Feedback
 
-Let me know what you think could improve on this project. Feel free to leave me an [email](mailto:mdancho@gmail.com).
+Let me know what you think could improve on this project. Feel free to leave me an [email](mailto:mdancho@gmail.com). The source code is available on GitHub [here](https://github.com/mdancho84/datasciencecoursera/tree/master/DevelopingDataProducts/shiny-app).
 
 
 
