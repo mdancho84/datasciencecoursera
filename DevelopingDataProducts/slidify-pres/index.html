@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Developing Data Products Course Project</title>
+  <meta name="description" content="">
+  <meta name="author" content="Matt Dancho">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/night.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/zenburn.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  
+  <p><link href="https://fonts.googleapis.com/css?family=Open+Sans|Permanent+Marker" rel="stylesheet"></p>
+
+<!-- font-family: 'Permanent Marker', cursive; -->
+
+<!-- font-family: 'Open Sans', sans-serif; -->
+
+<style>
+.reveal h1 {
+    font-size: 2em;
+    // color: #0000b3;
+    padding-bottom: 10px;
+    font-family: 'Permanent Marker', Impact, sans-serif;
+}
+
+.reveal h2 {
+    font-size: 1.5em;
+    //color: #fff7e6;
+    padding-bottom: 10px;
+    font-family: 'Permanent Marker', Impact, sans-serif;
+}
+
+
+.reveal p, .reveal em {
+    padding-bottom: 10px;
+    width: 960px;
+    font-family: 'Open Sans', Verdana, sans-serif;
+}
+
+.reveal p {
+    font-size: .75em;
+}
+
+.reveal small {
+    width: 500px;
+}
+
+.reveal .slides {
+    text-align: left;
+}
+
+.reveal .roll {
+    vertical-align: text-bottom;
+}
+
+code {
+    color: red;
+}
+
+.reveal pre code { 
+     height: 250px;
+}
+
+</style>
+
+<h1>Developing Data Products</h1>
+
+<hr>
+
+<h2>Course Project: <a href="https://mdancho84.shinyapps.io/shiny-app/">Sales Analytics Dashboard</a></h2>
+
+<p>Coursera Data Science Specialization</p>
+
+<p><small> <a href="http://www.mattdancho.com">Matt Dancho</a> / <a href="https://github.com/mdancho84">GitHub</a> / <a href="https://www.linkedin.com/in/mattdancho">LinkedIn</a> </small></p>
+
+<p><center>
+<em>&quot;Turn sales information into insight through the magic of Shiny&quot;</em>
+</center></p>
+
+</section>
+<section class='' data-state='' id='slide-2'>
+  <h1>The Assignment</h1>
+  <p>The goal of this assignment is to build:</p>
+
+<ol>
+<li><p><strong>A Shiny application</strong> that has widget input, ui input in <code>server.R</code>, reactive output using server calculations, and supporting documentation.</p></li>
+<li><p><strong>A Reproducible Pitch Presentation</strong> that contains five slides in either Slidify or Rstudio Presenter that is pushed to and hosted on GitHub or Rpubs and contains embedded <code>R</code> code that runs. </p></li>
+</ol>
+
+<h1>Links to Project App &amp; Docs</h1>
+
+<ol>
+<li><p>Shiny App: <a href="https://mdancho84.shinyapps.io/shiny-app/">Link</a></p></li>
+<li><p><code>server.R</code> and <code>ui.R</code> files: <a href="https://github.com/mdancho84/datasciencecoursera/tree/master/DevelopingDataProducts/shiny-app">Link</a> </p></li>
+</ol>
+
+</section>
+<section class='' data-state='' id='slide-3'>
+  <h1>The Data</h1>
+  <p>The data was simulated using a set of scripts I created as part of a side project called <code>orderSimulatoR</code>. The data simulation is intended to mimic real-world sales data for an organization. The data contains information related to customer orders such as order.id, products purchased, customer information (name and location), unit price, quantity sold, and so on. The simulated data was then used for analysis purposes as part of the <strong>Sales Analytics Dashboard</strong>. </p>
+
+<p>If your interested, the product names and prices came from the bicycle manufacturer, <em><a href="http://www.cannondale.com/en/USA">Cannondale</a></em>, but the customer names and order details are all made up from the <code>orderSimulatoR</code> scripts. For more information on the data set, you can view my <a href="http://www.mattdancho.com/business/2016/07/12/orderSimulatoR.html">orderSimulatoR blog post</a>.</p>
+
+</section>
+<section class='' data-state='' id='slide-4'>
+  <h1>The Sales Analytics Dashboard</h1>
+  <h4>Make Selections to Unlock Insights</h4>
+
+<p>There&#39;s a lot you can do with the <strong>Sales Analytics Dashboard</strong>. Here&#39;s a few suggestion to get started:</p>
+
+<ul>
+<li><p>Imagine you are an executive at <em>Cannondale</em> in charge of strategy and business development. Your goal is to understand which products <em>Cannondale&#39;s</em> customers are purchasing, which customers are purchasing the most, and what the organization can do to improve sales.</p></li>
+<li><p>Use the <strong>Reactive Inputs</strong> to filter by year, product unit price, product primary category, and product secondary category. </p></li>
+<li><p>On the <strong>Analysis</strong> tab, see how the filters can be used to drill into the information. See if there are any insights that you can come up with from the data.</p></li>
+<li><p>Switch to the <strong>Data</strong> tab to see how the filters control the data. Subset the data, and try downloading the csv file. </p></li>
+<li><p>Use the <strong>Reset Fields</strong> button when finished. See how the data set refreshs to its original size and how all of the reactive inputs reset.</p></li>
+</ul>
+
+</section>
+<section class='' data-state='' id='slide-5'>
+  <h1>Code Example</h1>
+  <pre><code class="r">library(leaflet)
+library(htmlwidgets)
+library(knitr)
+library(dplyr)
+
+# Load data
+setwd(&quot;../shiny-app&quot;)
+source(&quot;./scripts/helper.R&quot;)
+orders.extended &lt;- read.data()
+setwd(&quot;../slidify-pres&quot;)
+
+# Get sales by location
+salesByLocation &lt;- orders.extended %&gt;%
+        group_by(bikeshop.name, longitude, latitude) %&gt;%
+        summarise(total.sales = sum(price.extended)) %&gt;%
+        mutate(popup = paste0(bikeshop.name, 
+                              &quot;: &quot;, 
+                              scales::dollar(total.sales)))
+
+# Use Leaflet package to create map visualizing sales by customer location
+l &lt;- leaflet(salesByLocation) %&gt;% 
+  addProviderTiles(&quot;CartoDB.Positron&quot;) %&gt;%
+  addMarkers(lng = ~longitude, 
+             lat = ~latitude,
+             popup = ~popup) %&gt;%
+  addCircles(lng = ~longitude, 
+             lat = ~latitude, 
+             weight = 2,
+             radius = ~(total.sales)^0.775)
+
+# Move to img folder
+setwd(&quot;./assets/img&quot;)
+saveWidget(l, &#39;leaflet1.html&#39;) # Save widget html
+setwd(&quot;../..&quot;)
+
+# Source saved file
+cat(&#39;&lt;pre&gt;&lt;iframe src=&quot;./assets/img/leaflet1.html&quot; width=100% height=350px allowtransparency=&quot;true&quot;&gt; &lt;/iframe&gt;&lt;/pre&gt;&#39;)
+</code></pre>
+
+<pre><iframe src="./assets/img/leaflet1.html" width=100% height=350px allowtransparency="true"> </iframe></pre>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'night', 
+    transition: Reveal.getQueryHash().transition || 'convex', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>  <!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+ 
+
+</html>

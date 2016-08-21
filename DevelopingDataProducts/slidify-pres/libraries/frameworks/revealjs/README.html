@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>reveal.js <a href="https://travis-ci.org/hakimel/reveal.js"><img src="https://travis-ci.org/hakimel/reveal.js.png?branch=master" alt="Build Status"/></a></title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>reveal.js <a href="https://travis-ci.org/hakimel/reveal.js"><img src="https://travis-ci.org/hakimel/reveal.js.png?branch=master" alt="Build Status"/></a></h1>
+
+<p>A framework for easily creating beautiful presentations using HTML. <a href="http://lab.hakim.se/reveal-js/">Check out the live demo</a>.</p>
+
+<p>reveal.js comes with a broad range of features including <a href="https://github.com/hakimel/reveal.js#markup">nested slides</a>, <a href="https://github.com/hakimel/reveal.js#markdown">markdown contents</a>, <a href="https://github.com/hakimel/reveal.js#pdf-export">PDF export</a>, <a href="https://github.com/hakimel/reveal.js#speaker-notes">speaker notes</a> and a <a href="https://github.com/hakimel/reveal.js#api">JavaScript API</a>. It&#39;s best viewed in a browser with support for CSS 3D transforms but <a href="https://github.com/hakimel/reveal.js/wiki/Browser-Support">fallbacks</a> are available to make sure your presentation can still be viewed elsewhere.</p>
+
+<h4>More reading in the Wiki:</h4>
+
+<ul>
+<li><a href="https://github.com/hakimel/reveal.js/wiki/Changelog">Changelog</a>: Up-to-date version history.</li>
+<li><a href="https://github.com/hakimel/reveal.js/wiki/Example-Presentations">Examples</a>: Presentations created with reveal.js, add your own!</li>
+<li><a href="https://github.com/hakimel/reveal.js/wiki/Browser-Support">Browser Support</a>: Explanation of browser support and fallbacks.</li>
+</ul>
+
+<h2>rvl.io</h2>
+
+<p>Slides are written using HTML or markdown but there&#39;s also an online editor for those of you who prefer a more traditional user interface. Give it a try at <a href="http://www.rvl.io">www.rvl.io</a>.</p>
+
+<h2>Instructions</h2>
+
+<h3>Markup</h3>
+
+<p>Markup hierarchy needs to be <code>&lt;div class=&quot;reveal&quot;&gt; &lt;div class=&quot;slides&quot;&gt; &lt;section&gt;</code> where the <code>&lt;section&gt;</code> represents one slide and can be repeated indefinitely. If you place multiple <code>&lt;section&gt;</code>&#39;s inside of another <code>&lt;section&gt;</code> they will be shown as vertical slides. The first of the vertical slides is the &ldquo;root&rdquo; of the others (at the top), and it will be included in the horizontal sequence. For example:</p>
+
+<pre><code class="html">&lt;div class=&quot;reveal&quot;&gt;
+    &lt;div class=&quot;slides&quot;&gt;
+        &lt;section&gt;Single Horizontal Slide&lt;/section&gt;
+        &lt;section&gt;
+            &lt;section&gt;Vertical Slide 1&lt;/section&gt;
+            &lt;section&gt;Vertical Slide 2&lt;/section&gt;
+        &lt;/section&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<h3>Markdown</h3>
+
+<p>It&#39;s possible to write your slides using Markdown. To enable Markdown, add the <code>data-markdown</code> attribute to your <code>&lt;section&gt;</code> elements and wrap the contents in a <code>&lt;script type=&quot;text/template&quot;&gt;</code> like the example below.</p>
+
+<p>This is based on <a href="https://gist.github.com/1343518">data-markdown</a> from <a href="https://github.com/paulirish">Paul Irish</a> which in turn uses <a href="https://github.com/coreyti/showdown/">showdown</a>. Sensitive to indentation (avoid mixing tabs and spaces) and line breaks (avoid consecutive breaks).</p>
+
+<pre><code class="html">&lt;section data-markdown&gt;
+    &lt;script type=&quot;text/template&quot;&gt;
+        ## Page title
+
+        A paragraph with some text and a [link](http://hakim.se).
+    &lt;/script&gt;
+&lt;/section&gt;
+</code></pre>
+
+<h4>External Markdown</h4>
+
+<p>You can write your content as a separate file and have reveal.js load it at runtime. Note the separator arguments which determine how slides are delimited in the external file.</p>
+
+<pre><code class="html">&lt;section data-markdown=&quot;example.md&quot; data-separator=&quot;^\n\n\n&quot; data-vertical=&quot;^\n\n&quot;&gt;&lt;/section&gt;
+</code></pre>
+
+<h3>Configuration</h3>
+
+<p>At the end of your page you need to initialize reveal by running the following code. Note that all config values are optional and will default as specified below.</p>
+
+<pre><code class="javascript">Reveal.initialize({
+
+    // Display controls in the bottom right corner
+    controls: true,
+
+    // Display a presentation progress bar
+    progress: true,
+
+    // Push each slide change to the browser history
+    history: false,
+
+    // Enable keyboard shortcuts for navigation
+    keyboard: true,
+
+    // Enable the slide overview mode
+    overview: true,
+
+    // Vertical centering of slides
+    center: true,
+
+    // Loop the presentation
+    loop: false,
+
+    // Change the presentation direction to be RTL
+    rtl: false,
+
+    // Number of milliseconds between automatically proceeding to the
+    // next slide, disabled when set to 0, this value can be overwritten
+    // by using a data-autoslide attribute on your slides
+    autoSlide: 0,
+
+    // Enable slide navigation via mouse wheel
+    mouseWheel: false,
+
+    // Apply a 3D roll to links on hover
+    rollingLinks: true,
+
+    // Transition style
+    transition: &#39;default&#39;, // default/cube/page/concave/zoom/linear/fade/none
+
+    // Transition speed
+    transitionSpeed: &#39;default&#39;, // default/fast/slow
+
+});
+</code></pre>
+
+<p>Note that the new default vertical centering option will break compatibility with slides that were using transitions with backgrounds (<code>cube</code> and <code>page</code>). To restore the previous behavior, set <code>center</code> to <code>false</code>.</p>
+
+<p>The configuration can be updated after initialization using the <code>configure</code> method:</p>
+
+<pre><code class="javascript">// Turn autoSlide off
+Reveal.configure({ autoSlide: 0 });
+
+// Start auto-sliding every 5s
+Reveal.configure({ autoSlide: 5000 });
+</code></pre>
+
+<h3>Presentation Size</h3>
+
+<p>All presentations have a normal size, that is the resolution at which they are authored. The framework will automatically scale presentations uniformly based on this size to ensure that everything fits on any given display or viewport.</p>
+
+<p>See below for a list of configuration options related to sizing, including default values:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+
+    ...
+
+    // The &quot;normal&quot; size of the presentation, aspect ratio will be preserved
+    // when the presentation is scaled to fit different resolutions. Can be
+    // specified using percentage units.
+    width: 960,
+    height: 700,
+
+    // Factor of the display size that should remain empty around the content
+    margin: 0.1,
+
+    // Bounds for smallest/largest possible scale to apply to content
+    minScale: 0.2,
+    maxScale: 1.0
+
+});
+</code></pre>
+
+<h3>Dependencies</h3>
+
+<p>Reveal.js doesn&#39;t <em>rely</em> on any third party scripts to work but a few optional libraries are included by default. These libraries are loaded as dependencies in the order they appear, for example:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    dependencies: [
+        // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
+        { src: &#39;lib/js/classList.js&#39;, condition: function() { return !document.body.classList; } },
+
+        // Interpret Markdown in &lt;section&gt; elements
+        { src: &#39;plugin/markdown/showdown.js&#39;, condition: function() { return !!document.querySelector( &#39;[data-markdown]&#39; ); } },
+        { src: &#39;plugin/markdown/markdown.js&#39;, condition: function() { return !!document.querySelector( &#39;[data-markdown]&#39; ); } },
+
+        // Syntax highlight for &lt;code&gt; elements
+        { src: &#39;plugin/highlight/highlight.js&#39;, async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+
+        // Zoom in and out with Alt+click
+        { src: &#39;plugin/zoom-js/zoom.js&#39;, async: true, condition: function() { return !!document.body.classList; } },
+
+        // Speaker notes
+        { src: &#39;plugin/notes/notes.js&#39;, async: true, condition: function() { return !!document.body.classList; } },
+
+        // Remote control your reveal.js presentation using a touch device
+        { src: &#39;plugin/remotes/remotes.js&#39;, async: true, condition: function() { return !!document.body.classList; } }
+    ]
+});
+</code></pre>
+
+<p>You can add your own extensions using the same syntax. The following properties are available for each dependency object:</p>
+
+<ul>
+<li><strong>src</strong>: Path to the script to load</li>
+<li><strong>async</strong>: [optional] Flags if the script should load after reveal.js has started, defaults to false</li>
+<li><strong>callback</strong>: [optional] Function to execute when the script has loaded</li>
+<li><strong>condition</strong>: [optional] Function which must return true for the script to be loaded</li>
+</ul>
+
+<h3>API</h3>
+
+<p>The <code>Reveal</code> class provides a minimal JavaScript API for controlling navigation and reading state:</p>
+
+<pre><code class="javascript">// Navigation
+Reveal.slide( indexh, indexv, indexf );
+Reveal.left();
+Reveal.right();
+Reveal.up();
+Reveal.down();
+Reveal.prev();
+Reveal.next();
+Reveal.prevFragment();
+Reveal.nextFragment();
+Reveal.toggleOverview();
+
+// Retrieves the previous and current slide elements
+Reveal.getPreviousSlide();
+Reveal.getCurrentSlide();
+
+Reveal.getIndices(); // { h: 0, v: 0 } }
+</code></pre>
+
+<h3>States</h3>
+
+<p>If you set <code>data-state=&quot;somestate&quot;</code> on a slide <code>&lt;section&gt;</code>, &ldquo;somestate&rdquo; will be applied as a class on the document element when that slide is opened. This allows you to apply broad style changes to the page based on the active slide.</p>
+
+<p>Furthermore you can also listen to these changes in state via JavaScript:</p>
+
+<pre><code class="javascript">Reveal.addEventListener( &#39;somestate&#39;, function() {
+    // TODO: Sprinkle magic
+}, false );
+</code></pre>
+
+<h3>Ready event</h3>
+
+<p>The &#39;ready&#39; event is fired when reveal.js has loaded all (synchronous) dependencies and is ready to start navigating.</p>
+
+<pre><code class="javascript">Reveal.addEventListener( &#39;ready&#39;, function( event ) {
+    // event.currentSlide, event.indexh, event.indexv
+} );
+</code></pre>
+
+<h3>Slide change event</h3>
+
+<p>An &#39;slidechanged&#39; event is fired each time the slide is changed (regardless of state). The event object holds the index values of the current slide as well as a reference to the previous and current slide HTML nodes.</p>
+
+<p>Some libraries, like MathJax (see <a href="https://github.com/hakimel/reveal.js/issues/226#issuecomment-10261609">#226</a>), get confused by the transforms and display states of slides. Often times, this can be fixed by calling their update or render function from this callback.</p>
+
+<pre><code class="javascript">Reveal.addEventListener( &#39;slidechanged&#39;, function( event ) {
+    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+} );
+</code></pre>
+
+<h3>Internal links</h3>
+
+<p>It&#39;s easy to link between slides. The first example below targets the index of another slide whereas the second targets a slide with an ID attribute (<code>&lt;section id=&quot;some-slide&quot;&gt;</code>):</p>
+
+<pre><code class="html">&lt;a href=&quot;#/2/2&quot;&gt;Link&lt;/a&gt;
+&lt;a href=&quot;#/some-slide&quot;&gt;Link&lt;/a&gt;
+</code></pre>
+
+<p>You can also add relative navigation links, similar to the built in reveal.js controls, by appending one of the following classes on any element. Note that each element is automatically given an <code>enabled</code> class when it&#39;s a valid navigation route based on the current slide.</p>
+
+<pre><code class="html">&lt;a href=&quot;#&quot; class=&quot;navigate-left&quot;&gt;
+&lt;a href=&quot;#&quot; class=&quot;navigate-right&quot;&gt;
+&lt;a href=&quot;#&quot; class=&quot;navigate-up&quot;&gt;
+&lt;a href=&quot;#&quot; class=&quot;navigate-down&quot;&gt;
+&lt;a href=&quot;#&quot; class=&quot;navigate-prev&quot;&gt; &lt;!-- Previous vertical or horizontal slide --&gt;
+&lt;a href=&quot;#&quot; class=&quot;navigate-next&quot;&gt; &lt;!-- Next vertical or horizontal slide --&gt;
+</code></pre>
+
+<h3>Alternating transitions</h3>
+
+<p>The global presentation transition is set using the <code>transition</code> config value. You can override the global transition for a specific slide by using the <code>data-transition</code> attribute:</p>
+
+<pre><code class="html">&lt;section data-transition=&quot;zoom&quot;&gt;
+    &lt;h2&gt;This slide will override the presentation transition and zoom!&lt;/h2&gt;
+&lt;/section&gt;
+
+&lt;section data-transition-speed=&quot;fast&quot;&gt;
+    &lt;h2&gt;Choose from three transition speeds: default, fast or slow!&lt;/h2&gt;
+&lt;/section&gt;
+</code></pre>
+
+<p>Note that this does not work with the page and cube transitions.</p>
+
+<h3>Fragments</h3>
+
+<p>Fragments are used to highlight individual elements on a slide. Every elmement with the class <code>fragment</code> will be stepped through before moving on to the next slide. Here&#39;s an example: <a href="http://lab.hakim.se/reveal-js/#/16">http://lab.hakim.se/reveal-js/#/16</a></p>
+
+<p>The default fragment style is to start out invisible and fade in. This style can be changed by appending a different class to the fragment:</p>
+
+<pre><code class="html">&lt;section&gt;
+    &lt;p class=&quot;fragment grow&quot;&gt;grow&lt;/p&gt;
+    &lt;p class=&quot;fragment shrink&quot;&gt;shrink&lt;/p&gt;
+    &lt;p class=&quot;fragment roll-in&quot;&gt;roll-in&lt;/p&gt;
+    &lt;p class=&quot;fragment fade-out&quot;&gt;fade-out&lt;/p&gt;
+    &lt;p class=&quot;fragment highlight-red&quot;&gt;highlight-red&lt;/p&gt;
+    &lt;p class=&quot;fragment highlight-green&quot;&gt;highlight-green&lt;/p&gt;
+    &lt;p class=&quot;fragment highlight-blue&quot;&gt;highlight-blue&lt;/p&gt;
+&lt;/section&gt;
+</code></pre>
+
+<p>Multiple fragments can be applied to the same element sequentially by wrapping it, this will fade in the text on the first step and fade it back out on the second.</p>
+
+<pre><code class="html">&lt;section&gt;
+    &lt;span class=&quot;fragment fade-in&quot;&gt;
+        &lt;span class=&quot;fragment fade-out&quot;&gt;I&#39;ll fade in, then out&lt;/span&gt;
+    &lt;/span&gt;
+&lt;/section&gt;
+</code></pre>
+
+<p>The display order of fragments can be controlled using the <code>data-fragment-index</code> attribute.</p>
+
+<pre><code class="html">&lt;section&gt;
+    &lt;p class=&quot;fragment&quot; data-fragment-index=&quot;3&quot;&gt;Appears last&lt;/p&gt;
+    &lt;p class=&quot;fragment&quot; data-fragment-index=&quot;1&quot;&gt;Appears first&lt;/p&gt;
+    &lt;p class=&quot;fragment&quot; data-fragment-index=&quot;2&quot;&gt;Appears second&lt;/p&gt;
+&lt;/section&gt;
+</code></pre>
+
+<h3>Fragment events</h3>
+
+<p>When a slide fragment is either shown or hidden reveal.js will dispatch an event.</p>
+
+<pre><code class="javascript">Reveal.addEventListener( &#39;fragmentshown&#39;, function( event ) {
+    // event.fragment = the fragment DOM element
+} );
+Reveal.addEventListener( &#39;fragmenthidden&#39;, function( event ) {
+    // event.fragment = the fragment DOM element
+} );
+</code></pre>
+
+<h3>Code syntax highlighting</h3>
+
+<p>By default, Reveal is configured with <a href="http://softwaremaniacs.org/soft/highlight/en/">highlight.js</a> for code syntax highlighting. Below is an example with clojure code that will be syntax highlighted:</p>
+
+<pre><code class="html">&lt;section&gt;
+    &lt;pre&gt;&lt;code&gt;
+(def lazy-fib
+  (concat
+   [0 1]
+   ((fn rfib [a b]
+        (lazy-cons (+ a b) (rfib b (+ a b)))) 0 1)))
+    &lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+</code></pre>
+
+<h3>Overview mode</h3>
+
+<p>Press &ldquo;Esc&rdquo; key to toggle the overview mode on and off. While you&#39;re in this mode, you can still navigate between slides,
+as if you were at 1,000 feet above your presentation. The overview mode comes with a few API hooks:</p>
+
+<pre><code class="javascript">Reveal.addEventListener( &#39;overviewshown&#39;, function( event ) { /* ... */ } );
+Reveal.addEventListener( &#39;overviewhidden&#39;, function( event ) { /* ... */ } );
+
+// Toggle the overview mode programmatically
+Reveal.toggleOverview();
+</code></pre>
+
+<h3>Fullscreen mode</h3>
+
+<p>Just press Â»FÂ« on your keyboard to show your presentation in fullscreen mode. Press the Â»ESCÂ« key to exit fullscreen mode.</p>
+
+<h2>PDF Export</h2>
+
+<p>Presentations can be exported to PDF via a special print stylesheet. This feature requires that you use <a href="http://google.com/chrome">Google Chrome</a>.
+Here&#39;s an example of an exported presentation that&#39;s been uploaded to SlideShare: <a href="http://www.slideshare.net/hakimel/revealjs-13872948">http://www.slideshare.net/hakimel/revealjs-13872948</a>.</p>
+
+<ol>
+<li>Open your presentation with <a href="https://github.com/hakimel/reveal.js/blob/master/css/print/pdf.css">css/print/pdf.css</a> included on the page. The default index HTML lets you add <em>print-pdf</em> anywhere in the query to include the stylesheet, for example: <a href="http://lab.hakim.se/reveal-js?print-pdf">lab.hakim.se/reveal-js?print-pdf</a>.</li>
+<li>Open the in-browser print dialog (CMD+P).</li>
+<li>Change the <strong>Destination</strong> setting to <strong>Save as PDF</strong>.</li>
+<li>Change the <strong>Layout</strong> to <strong>Landscape</strong>.</li>
+<li>Change the <strong>Margins</strong> to <strong>None</strong>.</li>
+<li>Click <strong>Save</strong>.</li>
+</ol>
+
+<p><img src="https://s3.amazonaws.com/hakim-static/reveal-js/pdf-print-settings.png" alt="Chrome Print Settings"/></p>
+
+<h2>Theming</h2>
+
+<p>The framework comes with a few different themes included:</p>
+
+<ul>
+<li>default: Gray background, white text, blue links</li>
+<li>beige: Beige background, dark text, brown links</li>
+<li>sky: Blue background, thin white text, blue links</li>
+<li>night: Black background, thick white text, orange links</li>
+<li>serif: Cappuccino background, gray text, brown links</li>
+<li>simple: White background, black text, blue links</li>
+</ul>
+
+<p>Each theme is available as a separate stylesheet. To change theme you will need to replace <strong>default</strong> below with your desired theme name in index.html:</p>
+
+<pre><code class="html">&lt;link rel=&quot;stylesheet&quot; href=&quot;css/theme/default.css&quot; id=&quot;theme&quot;&gt;
+</code></pre>
+
+<p>If you want to add a theme of your own see the instructions here: <a href="https://github.com/hakimel/reveal.js/blob/master/css/theme/README.md">/css/theme/README.md</a>.</p>
+
+<h2>Development Environment</h2>
+
+<p>reveal.js is built using the task-based command line build tool <a href="http://gruntjs.com">grunt.js</a> (<a href="http://gruntjs.com/getting-started#installing-the-cli">installation instructions</a>). With Node.js and grunt.js installed, you need to start by running <code>npm install</code> in the reveal.js root. When the dependencies have been installed you should run <code>grunt watch</code> to start monitoring files for changes.</p>
+
+<p>If you want to customise reveal.js without running grunt.js you can alter the HTML to point to the uncompressed source files (css/reveal.css &amp; js/reveal.js).</p>
+
+<h3>Folder Structure</h3>
+
+<ul>
+<li><strong>css/</strong> Core styles without which the project does not function</li>
+<li><strong>js/</strong> Like above but for JavaScript</li>
+<li><strong>plugin/</strong> Components that have been developed as extensions to reveal.js</li>
+<li><strong>lib/</strong> All other third party assets (JavaScript, CSS, fonts)</li>
+</ul>
+
+<h2>Speaker Notes</h2>
+
+<p>reveal.js comes with a speaker notes plugin which can be used to present per-slide notes in a separate browser window. The notes window also gives you a preview of the next upcoming slide so it may be helpful even if you haven&#39;t written any notes. Press the &#39;s&#39; key on your keyboard to open the notes window.</p>
+
+<p>By default notes are written using standard HTML, see below, but you can add a <code>data-markdown</code> attribute to the <code>&lt;aside&gt;</code> to write them using Markdown.</p>
+
+<pre><code class="html">&lt;section&gt;
+    &lt;h2&gt;Some Slide&lt;/h2&gt;
+
+    &lt;aside class=&quot;notes&quot;&gt;
+        Oh hey, these are some notes. They&#39;ll be hidden in your presentation, but you can see them if you open the speaker notes window (hit &#39;s&#39; on your keyboard).
+    &lt;/aside&gt;
+&lt;/section&gt;
+</code></pre>
+
+<h2>Server Side Speaker Notes</h2>
+
+<p>In some cases it can be desirable to run notes on a separate device from the one you&#39;re presenting on. The Node.js-based notes plugin lets you do this using the same note definitions as its client side counterpart. Include the required scripts by adding the following dependencies:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    ...
+
+    dependencies: [
+        { src: &#39;socket.io/socket.io.js&#39;, async: true },
+        { src: &#39;plugin/notes-server/client.js&#39;, async: true }
+    ]
+});
+</code></pre>
+
+<p>Then:</p>
+
+<ol>
+<li>Install <a href="http://nodejs.org/">Node.js</a></li>
+<li>Run <code>npm install</code></li>
+<li>Run <code>node plugin/notes-server</code></li>
+</ol>
+
+<h2>Multiplexing</h2>
+
+<p>The multiplex plugin allows your audience to view the slides of the presentation you are controlling on their own phone, tablet or laptop. As the master presentation navigates the slides, all client presentations will update in real time. See a demo at <a href="http://revealjs.jit.su">http://revealjs.jit.su/</a>.</p>
+
+<p>The multiplex plugin needs the following 3 things to operate:</p>
+
+<ol>
+<li>Master presentation that has control</li>
+<li>Client presentations that follow the master</li>
+<li>Socket.io server to broadcast events from the master to the clients</li>
+</ol>
+
+<p>More details:</p>
+
+<h4>Master presentation</h4>
+
+<p>Served from a static file server accessible (preferably) only to the presenter. This need only be on your (the presenter&#39;s) computer. (It&#39;s safer to run the master presentation from your own computer, so if the venue&#39;s Internet goes down it doesn&#39;t stop the show.) An example would be to execute the following commands in the directory of your master presentation: </p>
+
+<ol>
+<li><code>npm install node-static</code></li>
+<li><code>static</code></li>
+</ol>
+
+<p>If you want to use the speaker notes plugin with you master presentation then make sure you have the speaker notes plugin configured correctly along with the configuration shown below, then execute <code>node plugin/notes-server</code> in the directory of your master presentation. The configuration below will cause it to connect to the socket.io server as a master, as well as launch your speaker-notes/static-file server.</p>
+
+<p>You can then access your master presentation at <code>http://localhost:1947</code></p>
+
+<p>Example configuration:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    // other options
+
+    multiplex: {
+        // Example values. Generate your own.
+        secret: &#39;13652805320794272084&#39;, // Obtained from the socket.io server. Gives this (the master) control of the presentation
+        id: &#39;1ea875674b17ca76&#39;, // Obtained from socket.io server
+        url: &#39;revealjs.jit.su:80&#39; // Location of socket.io server
+    },
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+        // other deps
+        { src: &#39;//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js&#39;, async: true },
+        { src: &#39;plugin/multiplex/master.js&#39;, async: true },
+
+        // and if you want speaker notes
+        { src: &#39;plugin/notes-server/client.js&#39;, async: true }
+    ]
+});
+</code></pre>
+
+<h4>Client presentation</h4>
+
+<p>Served from a publicly accessible static file server. Examples include: GitHub Pages, Amazon S3, Dreamhost, Akamai, etc. The more reliable, the better. Your audience can then access the client presentation via <code>http://example.com/path/to/presentation/client/index.html</code>, with the configuration below causing them to connect to the socket.io server as clients.</p>
+
+<p>Example configuration:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    // other options
+
+    multiplex: {
+        // Example values. Generate your own.
+        secret: null, // null so the clients do not have control of the master presentation
+        id: &#39;1ea875674b17ca76&#39;, // id, obtained from socket.io server
+        url: &#39;revealjs.jit.su:80&#39; // Location of socket.io server
+    },
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+        // other deps
+        { src: &#39;//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js&#39;, async: true },
+        { src: &#39;plugin/multiplex/client.js&#39;, async: true }
+    ]
+});
+</code></pre>
+
+<h4>Socket.io server</h4>
+
+<p>Server that receives the slideChanged events from the master presentation and broadcasts them out to the connected client presentations. This needs to be publicly accessible. You can run your own socket.io server with the commands:</p>
+
+<ol>
+<li><code>npm install</code></li>
+<li><code>node plugin/multiplex</code></li>
+</ol>
+
+<p>Or you use the socket.io server at <a href="http://revealjs.jit.su">http://revealjs.jit.su</a>.</p>
+
+<p>You&#39;ll need to generate a unique secret and token pair for your master and client presentations. To do so, visit <code>http://example.com/token</code>, where <code>http://example.com</code> is the location of your socket.io server. Or if you&#39;re going to use the socket.io server at <a href="http://revealjs.jit.su">http://revealjs.jit.su</a>, visit <a href="http://revealjs.jit.su/token">http://revealjs.jit.su/token</a>.</p>
+
+<p>You are very welcome to point your presentations at the Socket.io server running at <a href="http://revealjs.jit.su">http://revealjs.jit.su</a>, but availability and stability are not guaranteed. For anything mission critical I recommend you run your own server. It is simple to deploy to nodejitsu, heroku, your own environment, etc.</p>
+
+<h5>socket.io server as file static server</h5>
+
+<p>The socket.io server can play the role of static file server for your client presentation, as in the example at <a href="http://revealjs.jit.su">http://revealjs.jit.su</a>. (Open <a href="http://revealjs.jit.su">http://revealjs.jit.su</a> in two browsers. Navigate through the slides on one, and the other will update to match.) </p>
+
+<p>Example configuration:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    // other options
+
+    multiplex: {
+        // Example values. Generate your own.
+        secret: null, // null so the clients do not have control of the master presentation
+        id: &#39;1ea875674b17ca76&#39;, // id, obtained from socket.io server
+        url: &#39;example.com:80&#39; // Location of your socket.io server
+    },
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+        // other deps
+        { src: &#39;//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js&#39;, async: true },
+        { src: &#39;plugin/multiplex/client.js&#39;, async: true }
+    ]
+</code></pre>
+
+<p>It can also play the role of static file server for your master presentation and client presentations at the same time (as long as you don&#39;t want to use speaker notes). (Open <a href="http://revealjs.jit.su">http://revealjs.jit.su</a> in two browsers. Navigate through the slides on one, and the other will update to match. Navigate through the slides on the second, and the first will update to match.) This is probably not desirable, because you don&#39;t want your audience to mess with your slides while you&#39;re presenting. ;)</p>
+
+<p>Example configuration:</p>
+
+<pre><code class="javascript">Reveal.initialize({
+    // other options
+
+    multiplex: {
+        // Example values. Generate your own.
+        secret: &#39;13652805320794272084&#39;, // Obtained from the socket.io server. Gives this (the master) control of the presentation
+        id: &#39;1ea875674b17ca76&#39;, // Obtained from socket.io server
+        url: &#39;example.com:80&#39; // Location of your socket.io server
+    },
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+        // other deps
+        { src: &#39;//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js&#39;, async: true },
+        { src: &#39;plugin/multiplex/master.js&#39;, async: true },
+        { src: &#39;plugin/multiplex/client.js&#39;, async: true }
+    ]
+});
+</code></pre>
+
+<h2>License</h2>
+
+<p>MIT licensed</p>
+
+<p>Copyright &copy; 2013 Hakim El Hattab, <a href="http://hakim.se">http://hakim.se</a></p>
+
+</body>
+
+</html>

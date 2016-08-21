@@ -1,0 +1,13 @@
+leaflet:
+  css: [external/leaflet.css, external/leaflet-rCharts.css, external/legend.css]
+  jshead:
+    - external/leaflet.js
+    - external/leaflet-providers.js
+    - external/Control.FullScreen.js
+  
+  cdn:
+    css: //cdn.leafletjs.com/leaflet-0.5.1/leaflet.css
+    jshead: 
+      - //cdn.leafletjs.com/leaflet-0.5.1/leaflet.js
+      - //rawgithub.com/leaflet-extras/leaflet-providers/gh-pages/leaflet-providers.js
+      - "//harrywood.co.uk/maps/examples/leaflet/leaflet-plugins/layer/vector/KML.js"

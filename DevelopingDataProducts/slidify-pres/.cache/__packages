@@ -1,0 +1,14 @@
+base
+slidify
+rJava
+xlsxjars
+xlsx
+dplyr
+lubridate
+tidyr
+stringr
+rCharts
+knitr
+slidifyLibraries
+htmlwidgets
+leaflet
