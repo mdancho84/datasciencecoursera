@@ -128,6 +128,8 @@ There's a lot you can do with the __Sales Analytics Dashboard__. Here's a few su
 
 # Code Example
 
+#### Leaflet: Visualize Customers By Location
+
 
 
 ```r
