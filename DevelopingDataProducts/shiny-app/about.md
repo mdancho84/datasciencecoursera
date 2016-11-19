@@ -21,7 +21,7 @@ There's a lot you can do with the __Sales Analytics Dashboard__. Here's a few su
 
 * Switch to the __Data__ tab to see how the filters control the data. Subset the data, and try downloading the csv file. 
 
-* Use the __Reset Fields__ button when finished. See how the data set refreshs to its original size and how all of the reactive inputs 
+* Use the __Reset Fields__ button when finished. See how the data set refreshs to its original size and how all of the reactive inputs reset.
 
 ## Enjoy & Leave Feedback
 

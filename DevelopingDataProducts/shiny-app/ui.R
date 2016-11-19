@@ -46,10 +46,10 @@ shinyUI(navbarPage(
                                 # Sales Over Time By Category
                                 fluidRow(h3("Categorical Bicycle Sales Over Time", align=h3.align)),
                                 fluidRow(
-                                        column(12, h4("rCharts: View Sales By Primary Bike Category", align="center"), 
+                                        column(6, h4("rCharts: View Sales By Primary Bike Category", align="center"), 
                                                p(showOutput("primaryBikeCatOut", "nvd3"), align="center"))
                                         ,
-                                        column(12, h4("rCharts: View Sales By Secondary Bike Category", align="center"),
+                                        column(6, h4("rCharts: View Sales By Secondary Bike Category", align="center"),
                                                p(showOutput("secondaryBikeCatOut", "nvd3"), align = "center"))
                                         ),
                                 
@@ -99,7 +99,7 @@ shinyUI(navbarPage(
         ), # End Analytics Tab Panel
         
         # About Tab Panel ------------------------------------------------------           
-        tabPanel("About",
+        tabPanel("Supporting Docs",
                 mainPanel(column(8, offset = 2, includeMarkdown("about.md"))
                 )
         ) # End About Tab Panel

@@ -163,7 +163,7 @@ shinyServer(function(input, output, session) {
                         data = cat1SalesByYear(),
                         type = "multiBarChart",
                         dom = "primaryBikeCatOut",
-                        width = 700
+                        width = 550
                 )
                 
                 cat1SalesByYearOutDF$chart(margin = list(left = 85))
@@ -185,7 +185,7 @@ shinyServer(function(input, output, session) {
                         data = cat2SalesByYear(),
                         type = "multiBarHorizontalChart",
                         dom = "secondaryBikeCatOut",
-                        width = 700
+                        width = 550
                 )
                 cat2SalesByYearOutDF$yAxis(axisLabel = "Sales", width = 80,
                                            tickFormat = "#! function(d) {return '$' + d/1000000 + 'M'} !#")

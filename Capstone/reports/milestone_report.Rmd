@@ -1,0 +1,336 @@
+---
+title: 'Coursera Data Science Capstone Project: Milestone Report'
+author: 'Matt Dancho'
+output:
+  html_notebook:
+    theme: flatly
+    toc: yes
+    toc_depth: 2
+  html_document:
+    theme: flatly
+    toc: yes
+    toc_depth: 2
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width=5, fig.height=3, fig.align='center',
+               message = FALSE, warning = FALSE)
+```
+
+# Overview
+
+The goal of this milestone report is to perform an exploratory analysis using text mining that eventually will lead to a text prediction algorithm and a Shiny application. In this report, three files (en_US.blogs.txt, en_US.news.txt, and en_US.twitter.txt) containing unstructured text are loaded. The data is subset to reduce the time for algorithm pre-processing and tokenization. Pre-processing is performed to cleans the data by removing punctuation, stripping white space, removing stop words and profanity, and stemming the words. Tokenization is performed to turn the text units into n-gram word vectors of length one (unigrams), two (bigrams) and three (trigrams). Exploratory analysis is then performed to understand the highest frequency n-grams using both bar plots and word clouds.
+
+
+# Prerequisites
+
+Load the following libraries for text mining, data management and visualization.
+
+```{r}
+library(tidyverse)  # ggplot2, dplyr, tidyr, readr, purrr, tibble
+library(stringr)    # working with strings
+library(tm)         # text mining
+library(wordcloud)  # wordcloud visualization
+```
+
+
+```{r, echo = FALSE}
+library(doParallel) # parallel computation
+jobcluster <- makeCluster(detectCores())
+registerDoParallel(jobcluster, cores = detectCores())
+```
+
+
+# Data Import & Subset
+
+In this section, the text data is imported and sampled to make the pre-processing and tokenization faster. Also, the bad words data is imported, which is used to remove profanity during pre-processing.
+
+## Importing the Text Data
+
+The data is loaded using a combination of `DirSource()` and `Corpus()` functions from the `tm` library. `DirSource()` creates a directory source where the text files are located, and `Corpus()` reads each of the text files and stores them in `docs` as a VCorpus object (essentially a list).
+
+```{r, cache = TRUE}
+docs <- DirSource(directory = "../Coursera-SwiftKey/final/en_US/") %>%
+    Corpus()
+```
+
+### File Size (Mb)
+
+The file size in megabytes of each document in the corpus are shown below. We can see that the documents are quite large in terms of disk space.
+
+```{r}
+docs %>% sapply(function(x) round(object.size(x) / 1024 / 1024, 1)) 
+```
+
+### Number of Lines
+
+Using an anonymous function, we can get see the length of each of the files. The length is the number of lines that each file contains.
+
+```{r} 
+docs %>% sapply(function(x) x[[1]] %>% length())
+```
+
+### Number of Words
+
+Using a slightly more complex anonymous function, we can extract the approximate number of words from each of the documents. 
+
+```{r}
+docs %>% 
+    sapply(function(x) {
+        x[[1]] %>% 
+            str_c(collapse = " ") %>%
+            unlist() %>%
+            str_split(pattern = " ") %>%
+            unlist() %>%
+            length()
+    })
+```
+
+
+## Subset the Text Data
+
+The eventual predictive text application is designed for use on all devices (e.g. mobile, tablet, PC), which have varying processing power. As a result we need to reduce the file size for memory and processing power considerations. The custom function `sample_docs()` iterates through each document within a corpus, sampling the lines using the `sample_pct` parameter. The function is used to reduce the file size of each document within the corpus.
+
+```{r}
+sample_docs <- function(docs, sample_pct = 0.10) {
+    for (doc in 1:length(docs)) {
+        set.seed(123)
+        doc_len <- docs[[doc]][[1]] %>% length()
+        doc_samp <- sample(1:doc_len, ceiling(sample_pct * doc_len))
+        docs[[doc]][[1]] <- docs[[doc]][[1]][doc_samp]
+    }
+    docs
+} 
+```
+
+To get a manageable data set, we create a subset from the original documents that has 1.0% of the original lines.  
+
+```{r}
+docs_sub <- sample_docs(docs, sample_pct = 0.01)
+```
+
+Now the size of each document in the corpus is roughly 1.0% of the initial file size and number of lines.
+
+### File Size (Mb)
+
+```{r}
+docs_sub %>% sapply(function(x) round(object.size(x) / 1024 / 1024, 1))
+```
+
+### Number of Lines
+
+```{r} 
+docs_sub %>% sapply(function(x) x[[1]] %>% length())
+```
+
+### Number of Words
+
+```{r}
+docs_sub %>% 
+    sapply(function(x) {
+        x[[1]] %>% 
+            str_c(collapse = " ") %>%
+            unlist() %>%
+            str_split(pattern = " ") %>%
+            unlist() %>%
+            length()
+    })
+```
+
+## Import the Bad Words
+
+We also need to import the bad words, which comes from [Bad Words](https://raw.githubusercontent.com/shutterstock/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en) (_note before clicking that this link contains profanity_). The list of `bad_words` will be used to remove profanity from the text during pre-processing.
+
+
+```{r}
+url_bw <- "https://raw.githubusercontent.com/shutterstock/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en"
+if (!file.exists("bad_words.txt")) {
+    download.file(url_bw, destfile = "bad_words.txt")
+}
+con_bw <- file("bad_words.txt", open = "r")
+bad_words <- readLines(con_bw)
+close(con_bw)
+```
+
+
+# Pre-Processing 
+
+The text is pre-processed to remove punctuation, stop words, profanity, white space, etc. The functions used come from the `tm` library. The output is cleaned text.
+
+
+```{r}
+docs_clean <- docs_sub %>%
+    tm_map(tolower) %>%
+    tm_map(removeNumbers) %>%
+    tm_map(stripWhitespace) %>%
+    tm_map(removePunctuation) %>%
+    tm_map(removeWords, stopwords("english")) %>%
+    tm_map(removeWords, bad_words) %>%
+    tm_map(stemDocument)
+```
+
+
+# Tokenization
+
+Next, tokenization is performed. Tokenization is the process of converting the cleaned text to a character vector of text units. The `tokenize()` function below uses the `NGramTokenizer()` function from the `RWeka` library to separate the text units.
+
+```{r}
+tokenize <- function(docs, ngram = 1, delim) {
+    RWeka::NGramTokenizer(docs, 
+                          RWeka::Weka_control(min = ngram, 
+                                       max = ngram,
+                                       delimiters = delim)
+                          )
+}
+```
+
+The unigram, bigram and trigram text units are extracted from the cleaned text using the custom `tokenize()` function.
+
+```{r, eval = F}
+delim <- " \\r\\n\\t.,;:\"()?!"
+unigram <- tokenize(docs_clean, ngram = 1, delim)
+bigram <- tokenize(docs_clean, ngram = 2, delim)
+trigram <- tokenize(docs_clean, ngram = 3, delim)
+```
+
+
+```{r, eval = F, include = F}
+save(unigram, file = "unigram.Rdata")
+save(bigram, file = "bigram.Rdata")
+save(trigram, file = "trigram.Rdata")
+```
+
+```{r, echo = F}
+load("unigram.Rdata")
+load("bigram.Rdata")
+load("trigram.Rdata")
+```
+
+
+# Exploratory Analysis
+
+Now that the text has been tokenized, we can explore and visualize to understand characteristics of the text. 
+
+## Top 20 N-Gram Frequency
+
+It's useful to understand the most frequent combinations of words in the data set as this relates to our prediction algorithm. In theory the more frequent the observation, the higher the likelihood of the expression in the future. The limit selected is the top 20 most frequent n-grams. 
+
+```{r}
+n <- 20 # Limit frequency to top n instances
+```
+
+### Top 20 Unigrams
+
+```{r}
+lab <- "Unigram"
+unigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE) %>%
+    top_n(n) %>%
+    ggplot(aes(x = forcats::fct_reorder(word, n), y = n)) +
+    ggtitle(paste0("Top ", n, " ", lab, "s")) +
+    xlab(lab) + 
+    ylab("Frequency") +
+    geom_bar(stat = "identity") + 
+    coord_flip()
+```
+
+### Top 20 Bigrams
+
+```{r}
+lab <- "Bigram"
+bigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE) %>%
+    top_n(n) %>%
+    ggplot(aes(x = forcats::fct_reorder(word, n), y = n)) +
+    ggtitle(paste0("Top ", n, " ", lab, "s")) +
+    xlab(lab) + 
+    ylab("Frequency") +
+    geom_bar(stat = "identity") + 
+    coord_flip()
+```
+
+### Top 20 Trigrams
+
+```{r}
+lab <- "Trigram"
+trigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE) %>%
+    top_n(n) %>%
+    ggplot(aes(x = forcats::fct_reorder(word, n), y = n)) +
+    ggtitle(paste0("Top ", n, " ", lab, "s")) +
+    xlab(lab) + 
+    ylab("Frequency") +
+    geom_bar(stat = "identity") + 
+    coord_flip()
+```
+
+
+## Word Cloud
+
+A word cloud is another way to view the frequency of n-grams. We can visualize a much larger set of word frequencies using word clouds.
+
+### Unigram Word Cloud
+
+```{r}
+unigram_df <- unigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE)
+wordcloud(words        = unigram_df$word, 
+          freq         = unigram_df$n, 
+          max.words    = 200,
+          random.order = FALSE,
+          colors       = brewer.pal(6, "Dark2"))
+```
+
+### Bigram Word Cloud
+
+```{r}
+bigram_df <- bigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE)
+wordcloud(words        = bigram_df$word, 
+          freq         = bigram_df$n, 
+          max.words    = 200,
+          random.order = FALSE,
+          colors       = brewer.pal(6, "Dark2"))
+```
+
+### Trigram Word Cloud
+
+```{r}
+trigram_df <- trigram %>%
+    as_tibble() %>%
+    set_names(nm = "word") %>%
+    count(word, sort = TRUE)
+wordcloud(words        = trigram_df$word, 
+          freq         = trigram_df$n, 
+          max.words    = 200,
+          random.order = FALSE,
+          colors       = brewer.pal(6, "Dark2"))
+```
+
+# Conclusions / Interesting Findings
+
+1. Probably the biggest issue concerning this data analysis is the time it takes to load, pre-process, and tokenize the data. Because of this, it is impractical to use the entire data set.
+
+2. Sampling the data set improves the pre-processing and tokenization speed. While this is necessary for practicality, it may impact the prediction algorithm accuracy.
+
+3. Many of the n-grams intuitively make sense. For example, a popular trigram is "happy new year". This is useful for the prediction algorithm. However, some of the n-grams don't make sense, such as "hunter matt hunter". This may impact the prediction accuracy.
+
+# Next Steps
+
+The end goal is to create a Shiny application that predicts the next word based on user input. The next steps are to develop a prediction algorithm that can be used in the Shiny web application. Of prime importance is to balance the speed with the prediction accuracy, which is difficult since more data is needed for higher accuracy but more data directly impacts speed of tokenization. The goal will be to strike a balance by implementing methods to increase accuracy while maintaining speed.
+
+
